@@ -5,6 +5,7 @@ graph system is a user interface to use the graph data structure.
 #define GRAPHSYSTEM_H
 #include "Graph.h"
 #include <string>
+#include <sstream>
 
 class GraphSystem {
 public:
@@ -12,19 +13,19 @@ public:
     ~GraphSystem() = default;
 
     // add node
-    void AddNode(int id, std::string data);
+    void AddNode(std::string id, std::string data);
 
     // remove node
-    std::optional<std::string> RemoveNode(int id);
+    std::optional<std::string> RemoveNode(std::string id);
 
     // add edge
-    void AddEdge(int fromId, int toId);
+    void AddEdge(std::string fromId, std::string toId);
 
     // get data from node
-    std::optional<std::string> GetData(int id);
+    std::optional<std::string> GetData(std::string id);
 
     // get neighbors
-    std::optional<std::vector<int>> GetNeighbors(int id);
+    std::optional<std::vector<std::string>> GetNeighbors(std::string id);
 
     // get size
     std::size_t GetSize();
@@ -35,11 +36,19 @@ public:
     // print the graph
     void Print();
 
+    // help menu
+    void HelpMenu();
+
     // run the menu
     void Run();
+    
 
 private:
-    Graph<int, std::string> m_graph;
+    enum class Command {ADD, REMOVE, ADD_EDGE, GET, GET_NEIGHBORS, SIZE, IS_EMPTY, PRINT, HELP, QUIT, UNKNOWN};
+
+    Command ParseCommand(const std::string& str);
+
+    Graph<std::string, std::string> m_graph;
 };
 
-#endif;
+#endif

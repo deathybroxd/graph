@@ -116,7 +116,7 @@ bool Graph<T, D>::AddEdge(T fromId, T toId) {
             return false;
         }
     }
-    fromNode->m_neighbors.push_back(toId);
+    fromNode->m_neighbors.push_back(toNode);
     return true;
 }
 
