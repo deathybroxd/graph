@@ -13,19 +13,19 @@ public:
     ~GraphSystem() = default;
 
     // add node
-    void AddNode(std::string id, std::string data);
+    void AddNode(const std::string& id, const std::string& data);
 
     // remove node
-    std::optional<std::string> RemoveNode(std::string id);
+    std::optional<std::string> RemoveNode(const std::string& id);
 
     // add edge
-    void AddEdge(std::string fromId, std::string toId);
+    void AddEdge(const std::string& fromId, const std::string& toId);
 
     // get data from node
-    std::optional<std::string> GetData(std::string id);
+    std::optional<std::string> GetData(const std::string& id);
 
     // get neighbors
-    std::optional<std::vector<std::string>> GetNeighbors(std::string id);
+    std::optional<std::vector<std::string>> GetNeighbors(const std::string& id);
 
     // get size
     std::size_t GetSize();

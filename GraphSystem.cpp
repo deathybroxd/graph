@@ -1,12 +1,12 @@
 /* GraphSystem.cpp */
 #include "GraphSystem.h"
 
-void GraphSystem::AddNode(std::string id, std::string data) {
+void GraphSystem::AddNode(const std::string& id, const std::string& data) {
     m_graph.AddNode(id, data);
     std::cout << "Added node: " << id << " : " << data << std::endl;
 }
 
-std::optional<std::string> GraphSystem::RemoveNode(std::string id) {
+std::optional<std::string> GraphSystem::RemoveNode(const std::string& id) {
     std::optional<std::string> data = m_graph.RemoveNode(id);
     if(data.has_value()) {
         std::cout << "Removed node: " << id << " : " << data.value() << std::endl;
@@ -16,7 +16,7 @@ std::optional<std::string> GraphSystem::RemoveNode(std::string id) {
     return std::nullopt;
 }
 
-void GraphSystem::AddEdge(std::string fromId, std::string toId) {
+void GraphSystem::AddEdge(const std::string& fromId, const std::string& toId) {
     if(m_graph.AddEdge(fromId, toId)) {
         std::cout << "Added edge from node " << fromId << " to " << toId << std::endl;
     } else {
@@ -25,7 +25,7 @@ void GraphSystem::AddEdge(std::string fromId, std::string toId) {
     }
 }
 
-std::optional<std::string> GraphSystem::GetData(std::string id) {
+std::optional<std::string> GraphSystem::GetData(const std::string& id) {
     std::optional<std::string> data = m_graph.GetData(id);
     if(data.has_value()) {
         std::cout << id << " : " << data.value() << std::endl;
@@ -35,7 +35,7 @@ std::optional<std::string> GraphSystem::GetData(std::string id) {
     return std::nullopt;
 }
 
-std::optional<std::vector<std::string>> GraphSystem::GetNeighbors(std::string id) {
+std::optional<std::vector<std::string>> GraphSystem::GetNeighbors(const std::string& id) {
     std::optional<std::vector<std::string>> neighbors = m_graph.GetNeighbors(id);
     if(neighbors.has_value() && !neighbors.value().empty()) {
         std::cout << "Neighbors to node " << id << ":" << std::endl;
