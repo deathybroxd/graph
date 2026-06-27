@@ -6,14 +6,12 @@ void GraphSystem::AddNode(const std::string& id, const std::string& data) {
     std::cout << "Added node: " << id << " : " << data << std::endl;
 }
 
-std::optional<std::string> GraphSystem::RemoveNode(const std::string& id) {
+void GraphSystem::RemoveNode(const std::string& id) {
     std::optional<std::string> data = m_graph.RemoveNode(id);
     if(data.has_value()) {
         std::cout << "Removed node: " << id << " : " << data.value() << std::endl;
-        return data.value();
     }
     std::cout << "Error: could not remove node " << id << ", does not exist" << std::endl;
-    return std::nullopt;
 }
 
 void GraphSystem::AddEdge(const std::string& fromId, const std::string& toId) {
@@ -25,41 +23,70 @@ void GraphSystem::AddEdge(const std::string& fromId, const std::string& toId) {
     }
 }
 
-std::optional<std::string> GraphSystem::GetData(const std::string& id) {
+void GraphSystem::GetData(const std::string& id) {
     std::optional<std::string> data = m_graph.GetData(id);
     if(data.has_value()) {
         std::cout << id << " : " << data.value() << std::endl;
-        return data.value();
+    } else {
+        std::cout << "Error: could not find node " << id << ", does not exist" << std::endl;
     }
-    std::cout << "Error: could not find node " << id << ", does not exist" << std::endl;
-    return std::nullopt;
 }
 
-std::optional<std::vector<std::string>> GraphSystem::GetNeighbors(const std::string& id) {
+void GraphSystem::GetNeighbors(const std::string& id) {
     std::optional<std::vector<std::string>> neighbors = m_graph.GetNeighbors(id);
     if(neighbors.has_value() && !neighbors.value().empty()) {
         std::cout << "Neighbors to node " << id << ":" << std::endl;
         for(std::size_t i = 0; i < neighbors.value().size(); ++i) {
             std::cout << neighbors.value().at(i) << std::endl;
         }
-        return neighbors.value();
     } else {
         std::cout << "Error: no neighbors for node " << id << " or node could not be found" << std::endl;
-        return std::nullopt;
     }
 }
 
-std::size_t GraphSystem::GetSize() {
-    return m_graph.GetSize();
+void GraphSystem::BFS(const std::string& startId) {
+    std::optional<std::vector<std::string>> searchedList = m_graph.BFS(startId);
+    if(searchedList.has_value()) {
+        std::cout << "Breadth-First-Search starting from " << startId << ":" << std::endl;
+        for(std::size_t i = 0; i < searchedList.value().size(); ++i) {
+            std::cout << searchedList.value().at(i) << "->";
+        }
+        std::cout << std::endl;
+    } else {
+        std::cout << "Error: node " << startId << " could not be found " << std::endl;
+    }
+}
+
+void GraphSystem::DFS(const std::string& startId) {
+    std::optional<std::vector<std::string>> searchedList = m_graph.DFS(startId);
+    if(searchedList.has_value()) {
+        std::cout << "Depth-First-Search starting from " << startId << ":" << std::endl;
+        for(std::size_t i = 0; i < searchedList.value().size(); ++i) {
+            std::cout << searchedList.value().at(i) << "->";
+        }
+        std::cout << std::endl;
+    } else {
+        std::cout << "Error: node " << startId << " could not be found " << std::endl;
+    }
+}
+
+
+
+void GraphSystem::Size() {
+    std::cout << "Current graph size: " << m_graph.GetSize() << std::endl;
 }  
 
-bool GraphSystem::IsEmpty() {
-    return m_graph.IsEmpty();
+void GraphSystem::IsEmpty() {
+    if(m_graph.IsEmpty()) {
+        std::cout << "Graph is currently empty" << std::endl;
+    } else {
+        std::cout << "Graph is not currently empty " << std::endl;
+    }
 }
 
 void GraphSystem::Print() {
     std::cout << "Printing the whole graph: " << std::endl;
-    if(!IsEmpty()) {
+    if(!m_graph.IsEmpty()) {
         m_graph.Print();
     } else {
         std::cout << "Graph is currently empty" << std::endl;
@@ -73,6 +100,8 @@ void GraphSystem::HelpMenu() {
     std::cout << "ADD_EDGE <fromId #> <toId #> - Adds an edge from one node to another" << std::endl;
     std::cout << "GET <id #> - Gets data from a node" << std::endl;
     std::cout << "GET_NEIGHBORS <id #> - Gets all neighbors of a node" << std::endl;
+    std::cout << "BFS <id #> - Breadth-first-search on an a node id " << std::endl;
+    std::cout << "DFS <id #> - Depth-first-search on a node id " << std::endl;
     std::cout << "SIZE - Gets the size of the whole graph" << std::endl;
     std::cout << "IS_EMPTY - Checks if the graph is empty" << std::endl;
     std::cout << "PRINT - Prints the whole graph" << std::endl;
@@ -130,18 +159,29 @@ void GraphSystem::Run() {
                 break;
             }
 
-            case Command::SIZE:
-                std::cout << "Graph size: " << GetSize() << std::endl;
-                break;
-
-            case Command::IS_EMPTY: {
-                if(IsEmpty()) {
-                    std::cout << "Graph is currently empty." << std::endl;
-                } else {
-                    std::cout << "Graph is not currently empty." << std::endl;
+            case Command::BFS: {
+                std::string id;
+                if(iss >> id) {
+                    BFS(id);
                 }
                 break;
             }
+
+            case Command::DFS: {
+                std::string id;
+                if(iss >> id) {
+                    DFS(id);
+                }
+                break;
+            }
+
+            case Command::SIZE:
+                Size();
+                break;
+
+            case Command::IS_EMPTY: 
+                IsEmpty();
+                break;
 
             case Command::PRINT:
                 Print();
@@ -172,6 +212,8 @@ GraphSystem::Command GraphSystem::ParseCommand(const std::string& str) {
         {"ADD_EDGE", Command::ADD_EDGE},
         {"GET", Command::GET},
         {"GET_NEIGHBORS", Command::GET_NEIGHBORS},
+        {"BFS", Command::BFS},
+        {"DFS", Command::DFS},
         {"SIZE", Command::SIZE},
         {"IS_EMPTY", Command::IS_EMPTY},
         {"PRINT", Command::PRINT},

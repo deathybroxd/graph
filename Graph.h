@@ -8,6 +8,9 @@ contains definitions and implemenetations for graph
 #include <memory>
 #include <unordered_map>
 #include <optional>
+#include <queue>
+#include <unordered_set>
+#include <stack>
 
 template <class T, class D>
 class Graph {
@@ -19,19 +22,28 @@ public:
     ~Graph() = default;
 
     // create node
-    void AddNode(T id, D data);
+    void AddNode(const T& id, const D& data);
 
     // remove node
-    std::optional<D> RemoveNode(T id);
+    std::optional<D> RemoveNode(const T& id);
 
     // add an edge from one node to another
-    bool AddEdge(T fromId, T toId);
+    bool AddEdge(const T& fromId, const T& toId);
 
     // get node data
-    std::optional<D> GetData(T id);
+    std::optional<D> GetData(const T& id);
 
     // returns a vector of the neighbors of a node
-    std::optional<std::vector<T>> GetNeighbors(T id);
+    std::optional<std::vector<T>> GetNeighbors(const T& id);
+
+    // breadth-first search on a specific id in the graph
+    // expands outward layer-by-layer
+    std::optional<std::vector<T>> BFS(const T& startId);
+
+    // depth-first search on a specific id in the graph
+    // explores deep as possible down a specific path before backtracking
+    std::optional<std::vector<T>> DFS(const T& startId);
+
 
     // get size
     std::size_t GetSize();
@@ -62,7 +74,7 @@ Graph<T, D>::Graph() : m_size(0) {}
 
 
 template <class T, class D>
-void Graph<T, D>::AddNode(T id, D data) {
+void Graph<T, D>::AddNode(const T& id, const D& data) {
     std::unique_ptr<Node> newNode = std::make_unique<Node>(id, data);
     m_nodeLookup[id] = newNode.get(); // .get() returns a raw* to an object- m_nodeLookup stores Node*
     m_nodes.push_back(std::move(newNode)); // std::move to transfer ownership of the pointer
@@ -70,7 +82,7 @@ void Graph<T, D>::AddNode(T id, D data) {
 }
 
 template <class T, class D>
-std::optional<D> Graph<T, D>::RemoveNode(T id) {
+std::optional<D> Graph<T, D>::RemoveNode(const T& id) {
     auto it = m_nodeLookup.find(id);
     if(it == m_nodeLookup.end()) {
         return std::nullopt;
@@ -99,7 +111,7 @@ std::optional<D> Graph<T, D>::RemoveNode(T id) {
 }
 
 template <class T, class D>
-bool Graph<T, D>::AddEdge(T fromId, T toId) {
+bool Graph<T, D>::AddEdge(const T& fromId, const T& toId) {
     auto it1 = m_nodeLookup.find(fromId);
     auto it2 = m_nodeLookup.find(toId);
 
@@ -121,7 +133,7 @@ bool Graph<T, D>::AddEdge(T fromId, T toId) {
 }
 
 template <class T, class D>
-std::optional<D> Graph<T, D>::GetData(T id) {
+std::optional<D> Graph<T, D>::GetData(const T& id) {
     auto it = m_nodeLookup.find(id);
     if(it == m_nodeLookup.end()) {
         return std::nullopt;
@@ -130,7 +142,7 @@ std::optional<D> Graph<T, D>::GetData(T id) {
 }
 
 template <class T, class D>
-std::optional<std::vector<T>> Graph<T, D>::GetNeighbors(T id) {
+std::optional<std::vector<T>> Graph<T, D>::GetNeighbors(const T& id) {
     std::vector<T> neighbors;
     auto it = m_nodeLookup.find(id);
     if(it == m_nodeLookup.end()) {
@@ -141,6 +153,69 @@ std::optional<std::vector<T>> Graph<T, D>::GetNeighbors(T id) {
         neighbors.push_back(node->m_neighbors.at(i)->m_id);
     }
     return neighbors;
+}
+
+template <class T, class D>
+std::optional<std::vector<T>> Graph<T,D>::BFS(const T& startId) {
+    std::queue<T> bfsQueue; // fifo
+    std::unordered_set<T> bfsVisited;
+    std::vector<T> searchedList;
+
+    auto it = m_nodeLookup.find(startId);
+    if(it == m_nodeLookup.end()) {
+        return std::nullopt;
+    }
+
+    bfsVisited.insert(startId);
+    bfsQueue.push(startId);
+    while(!bfsQueue.empty()) {
+        T frontId = bfsQueue.front();
+        searchedList.push_back(frontId);
+        bfsQueue.pop();
+        
+        // check for neighbors
+        it = m_nodeLookup.find(frontId);
+        for(std::size_t i = 0; i < it->second->m_neighbors.size(); ++i) {
+            T neighborId = it->second->m_neighbors.at(i)->m_id;
+            if(bfsVisited.find(neighborId) == bfsVisited.end()) {
+                bfsVisited.insert(neighborId);
+                bfsQueue.push(neighborId);
+            }
+        }
+    }
+    return searchedList;
+}
+
+template <class T, class D>
+std::optional<std::vector<T>> Graph<T, D>::DFS(const T& startId) {
+    std::stack<T> dfsStack; // lifo
+    std::unordered_set<T> dfsVisited;
+    std::vector<T> searchedList;
+
+    auto it = m_nodeLookup.find(startId);
+    if(it == m_nodeLookup.end()) {
+        return std::nullopt;
+    }
+
+    dfsStack.push(startId);
+    while(!dfsStack.empty()) {
+        T currId = dfsStack.top();
+        dfsStack.pop();
+        // check if visited already
+        auto visitedIt = dfsVisited.find(currId);
+        if(visitedIt == dfsVisited.end()) {
+            dfsVisited.insert(currId);
+            searchedList.push_back(currId);
+            
+            it = m_nodeLookup.find(currId); // move the it from earlier to this id
+            // push all neighbors onto the stack
+            for(std::size_t i = 0; i < it->second->m_neighbors.size(); ++i) {
+                T neighborId = it->second->m_neighbors.at(i)->m_id;
+                dfsStack.push(neighborId);
+            }
+        }
+    }
+    return searchedList;
 }
 
 template <class T, class D>

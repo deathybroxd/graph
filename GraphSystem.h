@@ -16,22 +16,28 @@ public:
     void AddNode(const std::string& id, const std::string& data);
 
     // remove node
-    std::optional<std::string> RemoveNode(const std::string& id);
+    void RemoveNode(const std::string& id);
 
     // add edge
     void AddEdge(const std::string& fromId, const std::string& toId);
 
     // get data from node
-    std::optional<std::string> GetData(const std::string& id);
+    void GetData(const std::string& id);
 
     // get neighbors
-    std::optional<std::vector<std::string>> GetNeighbors(const std::string& id);
+    void GetNeighbors(const std::string& id);
 
-    // get size
-    std::size_t GetSize();
+    // breadth-first-search
+    void BFS(const std::string& startId);
+
+    // depth first search
+    void DFS(const std::string& startId);
+
+    // size
+    void Size();
 
     // check if empty
-    bool IsEmpty();
+    void IsEmpty();
 
     // print the graph
     void Print();
@@ -44,7 +50,7 @@ public:
     
 
 private:
-    enum class Command {ADD, REMOVE, ADD_EDGE, GET, GET_NEIGHBORS, SIZE, IS_EMPTY, PRINT, HELP, QUIT, UNKNOWN};
+    enum class Command {ADD, REMOVE, ADD_EDGE, GET, GET_NEIGHBORS, BFS, DFS, SIZE, IS_EMPTY, PRINT, HELP, QUIT, UNKNOWN};
 
     Command ParseCommand(const std::string& str);
 
